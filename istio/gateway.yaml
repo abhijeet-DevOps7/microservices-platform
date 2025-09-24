@@ -1,0 +1,66 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: microservices-gateway
+  namespace: microservices
+  labels:
+    app: microservices-platform
+    version: v1
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - api.microservices.local
+    - "*.microservices.local"
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: microservices-tls-secret
+    hosts:
+    - api.microservices.local
+    - "*.microservices.local"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: monitoring-gateway
+  namespace: microservices
+  labels:
+    app: monitoring
+    version: v1
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http-monitoring
+      protocol: HTTP
+    hosts:
+    - grafana.microservices.local
+    - prometheus.microservices.local
+    - jaeger.microservices.local
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https-monitoring
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: monitoring-tls-secret
+    hosts:
+    - grafana.microservices.local
+    - prometheus.microservices.local
+    - jaeger.microservices.local

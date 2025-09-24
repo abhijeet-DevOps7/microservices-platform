@@ -1,0 +1,315 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: user-service-dr
+  namespace: microservices
+  labels:
+    app: user-service
+    version: v1
+spec:
+  host: user-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+        consecutiveGateway5xxErrors: 5
+        interval: 30s
+        baseEjectionTime: 30s
+        maxEjectionPercent: 50
+        minHealthPercent: 50
+    outlierDetection:
+      consecutive5xxErrors: 5
+      consecutiveGateway5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 50
+      splitExternalLocalOriginErrors: true
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+    trafficPolicy:
+      portLevelSettings:
+      - port:
+          number: 8001
+        loadBalancer:
+          simple: ROUND_ROBIN
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: product-service-dr
+  namespace: microservices
+  labels:
+    app: product-service
+    version: v1
+spec:
+  host: product-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+        consecutiveGateway5xxErrors: 5
+    outlierDetection:
+      consecutive5xxErrors: 5
+      consecutiveGateway5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 50
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: order-service-dr
+  namespace: microservices
+  labels:
+    app: order-service
+    version: v1
+spec:
+  host: order-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 50
+        connectTimeout: 60s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 30
+        http2MaxRequests: 50
+        maxRequestsPerConnection: 5
+        maxRetries: 2
+        consecutiveGateway5xxErrors: 3
+    outlierDetection:
+      consecutive5xxErrors: 3
+      consecutiveGateway5xxErrors: 3
+      interval: 30s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 30
+      minHealthPercent: 70
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: payment-service-dr
+  namespace: microservices
+  labels:
+    app: payment-service
+    version: v1
+spec:
+  host: payment-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 30
+        connectTimeout: 45s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 20
+        http2MaxRequests: 30
+        maxRequestsPerConnection: 3
+        maxRetries: 2
+        consecutiveGateway5xxErrors: 2
+    outlierDetection:
+      consecutive5xxErrors: 2
+      consecutiveGateway5xxErrors: 2
+      interval: 30s
+      baseEjectionTime: 120s
+      maxEjectionPercent: 20
+      minHealthPercent: 80
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: inventory-service-dr
+  namespace: microservices
+  labels:
+    app: inventory-service
+    version: v1
+spec:
+  host: inventory-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 80
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 40
+        http2MaxRequests: 80
+        maxRequestsPerConnection: 8
+        maxRetries: 3
+        consecutiveGateway5xxErrors: 5
+    outlierDetection:
+      consecutive5xxErrors: 5
+      consecutiveGateway5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 50
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: notification-service-dr
+  namespace: microservices
+  labels:
+    app: notification-service
+    version: v1
+spec:
+  host: notification-service
+  trafficPolicy:
+    loadBalancer:
+      simple: RANDOM
+    connectionPool:
+      tcp:
+        maxConnections: 60
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 30
+        http2MaxRequests: 60
+        maxRequestsPerConnection: 6
+        maxRetries: 3
+        consecutiveGateway5xxErrors: 4
+    outlierDetection:
+      consecutive5xxErrors: 4
+      consecutiveGateway5xxErrors: 4
+      interval: 30s
+      baseEjectionTime: 45s
+      maxEjectionPercent: 40
+      minHealthPercent: 60
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: analytics-service-dr
+  namespace: microservices
+  labels:
+    app: analytics-service
+    version: v1
+spec:
+  host: analytics-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 40
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 20
+        http2MaxRequests: 40
+        maxRequestsPerConnection: 4
+        maxRetries: 3
+        consecutiveGateway5xxErrors: 5
+    outlierDetection:
+      consecutive5xxErrors: 5
+      consecutiveGateway5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 50
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: recommendation-service-dr
+  namespace: microservices
+  labels:
+    app: recommendation-service
+    version: v1
+spec:
+  host: recommendation-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 70
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 35
+        http2MaxRequests: 70
+        maxRequestsPerConnection: 7
+        maxRetries: 3
+        consecutiveGateway5xxErrors: 4
+    outlierDetection:
+      consecutive5xxErrors: 4
+      consecutiveGateway5xxErrors: 4
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 40
+      minHealthPercent: 60
+  subsets:
+  - name: v1
+    labels:
+      version: v1

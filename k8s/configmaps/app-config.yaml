@@ -1,0 +1,178 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cache-config
+  namespace: microservices
+  labels:
+    app: redis-cache
+    type: configuration
+data:
+  redis-url: "redis://redis-service:6379"
+  redis-host: "redis-service"
+  redis-port: "6379"
+  redis-db: "0"
+  redis-ttl: "3600"
+  cache-enabled: "true"
+  cache-timeout: "30"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-config
+  namespace: microservices
+  labels:
+    app: elasticsearch
+    type: configuration
+data:
+  elasticsearch-url: "http://elasticsearch-service:9200"
+  elasticsearch-host: "elasticsearch-service"
+  elasticsearch-port: "9200"
+  index-prefix: "microservices"
+  max-results: "100"
+  search-timeout: "10s"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+  namespace: microservices
+  labels:
+    app: user-service
+    type: configuration
+data:
+  config.yaml: |
+    server:
+      port: 8001
+      host: "0.0.0.0"
+      timeout: 30s
+    
+    database:
+      pool_size: 10
+      max_connections: 50
+      timeout: 30s
+      retry_attempts: 3
+    
+    jwt:
+      expiration: "24h"
+      refresh_expiration: "7d"
+      algorithm: "HS256"
+    
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 100
+      burst_size: 10
+    
+    logging:
+      level: "info"
+      format: "json"
+      output: "stdout"
+    
+    metrics:
+      enabled: true
+      path: "/metrics"
+      interval: 30s
+    
+    health:
+      enabled: true
+      ready_path: "/health/ready"
+      live_path: "/health/live"
+    
+    tracing:
+      enabled: true
+      service_name: "user-service"
+      jaeger_endpoint: "http://jaeger-collector:14268/api/traces"
+      sample_rate: 0.1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-service-config
+  namespace: microservices
+  labels:
+    app: product-service
+    type: configuration
+data:
+  config.yaml: |
+    server:
+      port: 8002
+      host: "0.0.0.0"
+      timeout: 30s
+    
+    mongodb:
+      timeout: 30s
+      retry_attempts: 3
+      pool_size: 10
+    
+    elasticsearch:
+      refresh_interval: "30s"
+      number_of_shards: 3
+      number_of_replicas: 1
+    
+    cache:
+      product_ttl: 3600
+      category_ttl: 7200
+      search_ttl: 300
+    
+    pagination:
+      default_page_size: 20
+      max_page_size: 100
+    
+    logging:
+      level: "info"
+      format: "json"
+      output: "stdout"
+    
+    metrics:
+      enabled: true
+      path: "/metrics"
+      interval: 30s
+    
+    health:
+      enabled: true
+      ready_path: "/health/ready"
+      live_path: "/health/live"
+    
+    tracing:
+      enabled: true
+      service_name: "product-service"
+      jaeger_endpoint: "http://jaeger-collector:14268/api/traces"
+      sample_rate: 0.1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-config
+  namespace: microservices
+  labels:
+    app: monitoring
+    type: configuration
+data:
+  prometheus-url: "http://prometheus:9090"
+  jaeger-ui-url: "http://jaeger-ui:16686"
+  grafana-url: "http://grafana:3000"
+  alert-manager-url: "http://alertmanager:9093"
+  metrics-retention: "30d"
+  traces-retention: "7d"
+  logs-retention: "30d"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-discovery-config
+  namespace: microservices
+  labels:
+    app: service-discovery
+    type: configuration
+data:
+  user-service-url: "http://user-service:8001"
+  product-service-url: "http://product-service:8002"
+  order-service-url: "http://order-service:8003"
+  payment-service-url: "http://payment-service:8004"
+  inventory-service-url: "http://inventory-service:8005"
+  notification-service-url: "http://notification-service:8006"
+  analytics-service-url: "http://analytics-service:8007"
+  recommendation-service-url: "http://recommendation-service:8008"
+  health-check-interval: "30s"
+  circuit-breaker-threshold: "5"
+  circuit-breaker-timeout: "60s"

@@ -1,0 +1,340 @@
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: microservices-vs
+  namespace: microservices
+  labels:
+    app: microservices-platform
+    version: v1
+spec:
+  hosts:
+  - api.microservices.local
+  gateways:
+  - microservices-gateway
+  http:
+  # User Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/users
+    route:
+    - destination:
+        host: user-service
+        port:
+          number: 8001
+        subset: v1
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    fault:
+      delay:
+        percentage:
+          value: 0.1
+        fixedDelay: 2s
+      abort:
+        percentage:
+          value: 0.01
+        httpStatus: 500
+    headers:
+      request:
+        set:
+          x-service-name: user-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: user-service
+  
+  # Product Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/products
+    route:
+    - destination:
+        host: product-service
+        port:
+          number: 8002
+        subset: v1
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    headers:
+      request:
+        set:
+          x-service-name: product-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: product-service
+  
+  # Order Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/orders
+    route:
+    - destination:
+        host: order-service
+        port:
+          number: 8003
+        subset: v1
+      weight: 100
+    timeout: 60s
+    retries:
+      attempts: 2
+      perTryTimeout: 30s
+    headers:
+      request:
+        set:
+          x-service-name: order-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: order-service
+  
+  # Payment Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/payments
+    route:
+    - destination:
+        host: payment-service
+        port:
+          number: 8004
+        subset: v1
+      weight: 100
+    timeout: 45s
+    retries:
+      attempts: 2
+      perTryTimeout: 20s
+    headers:
+      request:
+        set:
+          x-service-name: payment-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: payment-service
+  
+  # Inventory Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/inventory
+    route:
+    - destination:
+        host: inventory-service
+        port:
+          number: 8005
+        subset: v1
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    headers:
+      request:
+        set:
+          x-service-name: inventory-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: inventory-service
+  
+  # Notification Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/notifications
+    route:
+    - destination:
+        host: notification-service
+        port:
+          number: 8006
+        subset: v1
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    headers:
+      request:
+        set:
+          x-service-name: notification-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: notification-service
+  
+  # Analytics Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/analytics
+    route:
+    - destination:
+        host: analytics-service
+        port:
+          number: 8007
+        subset: v1
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    headers:
+      request:
+        set:
+          x-service-name: analytics-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: analytics-service
+  
+  # Recommendation Service Routes
+  - match:
+    - uri:
+        prefix: /api/v1/recommendations
+    route:
+    - destination:
+        host: recommendation-service
+        port:
+          number: 8008
+        subset: v1
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+    headers:
+      request:
+        set:
+          x-service-name: recommendation-service
+        add:
+          x-request-id: "%REQ(x-request-id)%"
+      response:
+        add:
+          x-served-by: recommendation-service
+  
+  # Health Check Routes
+  - match:
+    - uri:
+        prefix: /health
+    route:
+    - destination:
+        host: user-service
+        port:
+          number: 8001
+      weight: 12
+    - destination:
+        host: product-service
+        port:
+          number: 8002
+      weight: 12
+    - destination:
+        host: order-service
+        port:
+          number: 8003
+      weight: 13
+    - destination:
+        host: payment-service
+        port:
+          number: 8004
+      weight: 13
+    - destination:
+        host: inventory-service
+        port:
+          number: 8005
+      weight: 12
+    - destination:
+        host: notification-service
+        port:
+          number: 8006
+      weight: 12
+    - destination:
+        host: analytics-service
+        port:
+          number: 8007
+      weight: 13
+    - destination:
+        host: recommendation-service
+        port:
+          number: 8008
+      weight: 13
+    timeout: 10s
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: monitoring-vs
+  namespace: microservices
+  labels:
+    app: monitoring
+    version: v1
+spec:
+  hosts:
+  - grafana.microservices.local
+  - prometheus.microservices.local
+  - jaeger.microservices.local
+  gateways:
+  - monitoring-gateway
+  http:
+  # Grafana Routes
+  - match:
+    - uri:
+        prefix: /
+      headers:
+        host:
+          exact: grafana.microservices.local
+    route:
+    - destination:
+        host: grafana
+        port:
+          number: 3000
+    timeout: 30s
+    headers:
+      request:
+        add:
+          x-forwarded-proto: https
+  
+  # Prometheus Routes
+  - match:
+    - uri:
+        prefix: /
+      headers:
+        host:
+          exact: prometheus.microservices.local
+    route:
+    - destination:
+        host: prometheus
+        port:
+          number: 9090
+    timeout: 30s
+    headers:
+      request:
+        add:
+          x-forwarded-proto: https
+  
+  # Jaeger Routes
+  - match:
+    - uri:
+        prefix: /
+      headers:
+        host:
+          exact: jaeger.microservices.local
+    route:
+    - destination:
+        host: jaeger-query
+        port:
+          number: 16686
+    timeout: 30s
+    headers:
+      request:
+        add:
+          x-forwarded-proto: https
